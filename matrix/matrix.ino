@@ -27,15 +27,11 @@ int decoder(int adc) {
 }
 
 int clear = 0b00000000;
+int indicators[] = {0b00000001, 0b00000010, 0b00000100, 0b00001000,
+                    0b00010000, 0b00100000, 0b01000000, 0b10000000};
 
 int adcs[cards] = {A0, A1, A2, A3};
 int values[cards];
-// enum card = {
-//   stop,
-//   adelante,
-//   izquierda,
-//   derecha
-// }
 
 void clear_register() {
   digitalWrite(latch, LOW);
@@ -43,16 +39,21 @@ void clear_register() {
   digitalWrite(latch, HIGH);
 }
 
-void set_register() {
-  int value = 0;
-  for (int i = cards - 1; i >= 0; i--) {
-    value = (value)*2 + (values[i] > 0 ? 1 : 0);
-  }
-
+void set_register(int value) {
   digitalWrite(latch, LOW);
   shiftOut(data, clock, MSBFIRST, value);
   digitalWrite(latch, HIGH);
 }
+
+void set_cards() {
+  int value = 0;
+  for (int i = cards - 1; i >= 0; i--) {
+    value = (value)*2 + (values[i] > 0 ? 1 : 0);
+  }
+  set_register(value);
+}
+
+void send_command(int command) { Serial.println(command); }
 
 void beep() {
   digitalWrite(buzzer, HIGH);
@@ -60,6 +61,29 @@ void beep() {
   delay(50);
   digitalWrite(buzzer, LOW);
   digitalWrite(led, LOW);
+}
+
+void send_commands() {
+  Serial.println("...sending commands");
+  beep_beep(3);
+  clear_register();
+  delay(1000);
+  for (int i = 0; i < cards; i++) {
+    set_register(indicators[i]);
+    send_command(values[i]);
+    beep();
+    delay(1000);
+  }
+  delay(1000);
+  beep_beep(3);
+  Serial.println("...completed");
+}
+
+void beep_beep(int t) {
+  for (int i = 0; i < t; i++) {
+    beep();
+    delay(100);
+  }
 }
 
 void setup() {
@@ -77,31 +101,31 @@ void setup() {
   digitalWrite(enable, LOW);
   digitalWrite(buzzer, LOW);
 
+  clear_register();
+
   btSerial.begin(9600);
   Serial.begin(115200);
   Serial.println("...Start");
-
-  for (int i = 0; i < 5; i++) {
-    beep();
-    delay(100);
-  }
-
-  clear_register();
+  beep_beep(3);
 }
 
-void loop() {
-  Serial.println("- - - - - - - - - - -  ");
+void read_cards() {
   int adc = 0;
   for (int i = 0; i < cards; i++) {
     adc = analogRead(adcs[i]);
     values[i] = decoder(adc);
-    Serial.print(i);
-    Serial.print(": ");
-    Serial.print(values[i]);
-    Serial.print(" ");
-    Serial.println(adc);
     delay(10);
   }
-  set_register();
-  delay(100);
+}
+
+void loop() {
+  read_cards();
+  set_cards();
+  if (!digitalRead(button)) {
+    digitalWrite(led, !digitalRead(led));
+    send_commands();
+    while (!digitalRead(button)) {
+      delay(10);
+    }
+  }
 }
