@@ -1,6 +1,5 @@
 #define led 13
 
-#define enable 5
 #define data 2
 #define clock 4
 #define latch 3

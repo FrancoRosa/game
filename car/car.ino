@@ -81,7 +81,7 @@ void process_command() {
 }
 
 void blink() {
-  digitalWrite(ledPin, !digitalRead(ledPin));
+  digitalWrite(led, !digitalRead(led));
   counter++;
   if (counter > 4) {
     counter = 0;
@@ -109,7 +109,7 @@ void blink() {
 }
 
 void setup() {
-  pinMode(ledPin, OUTPUT);
+  pinMode(led, OUTPUT);
   pinMode(mr1l, OUTPUT);
   pinMode(mr1r, OUTPUT);
   pinMode(ml1l, OUTPUT);
