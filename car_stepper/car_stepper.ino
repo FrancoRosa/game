@@ -2,6 +2,7 @@
 #include <TimerOne.h>
 
 #define led 13
+#define buz 12
 #define txPin 11
 #define rxPin 10
 
