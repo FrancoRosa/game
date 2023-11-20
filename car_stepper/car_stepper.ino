@@ -2,7 +2,16 @@
 #include <TimerOne.h>
 
 #define led 13
-#define buz 12
+#define led1 12
+#define ledR A7
+#define ledG A6
+#define ledB A5
+#define v_batt A4
+#define buzzer A3
+#define mat_clk A2
+#define mat_dat A1
+#define mat_in A0
+
 #define txPin 11
 #define rxPin 10
 
@@ -16,12 +25,8 @@
 #define m2n3 8
 #define m2n4 9
 
-#define m2n4 A0
-#define m2n4 A1
-#define m2n4 A2
-
 static int move = 2048;
-static int turn = 1024;
+static int turn = 512 + 14;
 
 int dir_1 = 0;
 int dir_2 = 0;
@@ -36,6 +41,21 @@ enum state_t { st_idle, st_bck, st_fwd, st_right, st_left };
 state_t state = st_idle;
 
 SoftwareSerial btSerial(rxPin, txPin);
+
+void beep() {
+  digitalWrite(buzzer, HIGH);
+  digitalWrite(led, HIGH);
+  delay(30);
+  digitalWrite(buzzer, LOW);
+  digitalWrite(led, LOW);
+}
+
+void beep_beep(int t) {
+  for (int i = 0; i < t; i++) {
+    beep();
+    delay(50);
+  }
+}
 
 void off() {
   digitalWrite(m1n1, LOW);
@@ -54,6 +74,8 @@ void process_command() {
   while (btSerial.available()) {
     c = btSerial.read();
     Serial.println(c);
+    beep_beep(2);
+
     switch (c) {
     case 'f':
       if (state != st_fwd)
@@ -186,6 +208,7 @@ void setup() {
   pinMode(m2n4, OUTPUT);
 
   off();
+  // Timer1.initialize(18000); // uS
   Timer1.initialize(1800); // uS
   Timer1.attachInterrupt(blink);
   btSerial.begin(9600);
