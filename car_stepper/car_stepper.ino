@@ -25,7 +25,7 @@
 #define m2n3 8
 #define m2n4 9
 
-static int move = 2048;
+static int move = 2048 + 512;
 static int turn = 512 + 14;
 
 int dir_1 = 0;

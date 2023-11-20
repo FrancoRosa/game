@@ -10,8 +10,8 @@
 #define button 9
 #define buzzer 12
 
-#define rxPin 10
-#define txPin 11
+#define rxPin 11
+#define txPin 10
 
 #define cards 4
 
@@ -27,6 +27,7 @@ int decoder(int adc) {
 }
 
 int clear = 0b00000000;
+int all = 0b11111111;
 int indicators[] = {0b00000001, 0b00000010, 0b00000100, 0b00001000,
                     0b00010000, 0b00100000, 0b01000000, 0b10000000};
 
@@ -37,6 +38,29 @@ void clear_register() {
   digitalWrite(latch, LOW);
   shiftOut(data, clock, MSBFIRST, clear);
   digitalWrite(latch, HIGH);
+}
+
+void labels(int n) {
+  switch (n) {
+  case 1:
+    Serial.print(" bck ");
+    btSerial.print("f");
+    break;
+  case 2:
+    Serial.print(" fwd ");
+    btSerial.print("b");
+    break;
+  case 3:
+    Serial.print(" rgt ");
+    btSerial.print("r");
+    break;
+  case 4:
+    Serial.print(" lft ");
+    btSerial.print("l");
+    break;
+  default:
+    break;
+  }
 }
 
 void set_register(int value) {
@@ -70,9 +94,10 @@ void send_commands() {
   delay(1000);
   for (int i = 0; i < cards; i++) {
     set_register(indicators[i]);
+    labels(values[i]);
     send_command(values[i]);
     beep();
-    delay(1000);
+    delay(5000);
   }
   delay(1000);
   beep_beep(3);
@@ -101,12 +126,13 @@ void setup() {
   digitalWrite(enable, LOW);
   digitalWrite(buzzer, LOW);
 
-  clear_register();
-
+  set_register(all);
   btSerial.begin(9600);
   Serial.begin(115200);
   Serial.println("...Start");
+  btSerial.println("...btStart");
   beep_beep(3);
+  clear_register();
 }
 
 void read_cards() {
