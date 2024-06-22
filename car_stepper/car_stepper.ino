@@ -213,7 +213,7 @@ void setup() {
   Timer1.attachInterrupt(blink);
   btSerial.begin(9600);
   Serial.begin(115200);
-  Serial.println("...Start");
+  Serial.println("...Start stepper");
 }
 
 void loop() { process_command(); }
