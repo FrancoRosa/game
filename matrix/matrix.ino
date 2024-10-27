@@ -13,7 +13,7 @@
 #define rxPin 11
 #define txPin 10
 
-#define cards 4
+#define cards 6
 
 SoftwareSerial btSerial(rxPin, txPin);
 
@@ -28,10 +28,13 @@ int decoder(int adc) {
 
 int clear = 0b00000000;
 int all = 0b11111111;
-int indicators[] = {0b00000001, 0b00000010, 0b00000100, 0b00001000,
-                    0b00010000, 0b00100000, 0b01000000, 0b10000000};
+int indicators[] = {
+    0b00000001, 0b00000010, 0b00000100, 0b00001000,
+    0b00010000, 0b00100000, 0b01000000, 0b10000000,
 
-int adcs[cards] = {A0, A1, A2, A3};
+};
+
+int adcs[cards] = {A0, A1, A2, A3, A4, A5};
 int values[cards];
 
 void clear_register() {
@@ -43,11 +46,11 @@ void clear_register() {
 void labels(int n) {
   switch (n) {
   case 1:
-    Serial.print(" bck ");
+    Serial.print(" fwd ");
     btSerial.print("f");
     break;
   case 2:
-    Serial.print(" fwd ");
+    Serial.print(" bck ");
     btSerial.print("b");
     break;
   case 3:
@@ -72,7 +75,7 @@ void set_register(int value) {
 void set_cards() {
   int value = 0;
   for (int i = cards - 1; i >= 0; i--) {
-    value = (value)*2 + (values[i] > 0 ? 1 : 0);
+    value = (value) * 2 + (values[i] > 0 ? 1 : 0);
   }
   set_register(value);
 }
@@ -82,7 +85,7 @@ void send_command(int command) { Serial.println(command); }
 void beep() {
   digitalWrite(buzzer, HIGH);
   digitalWrite(led, HIGH);
-  delay(50);
+  delay(5);
   digitalWrite(buzzer, LOW);
   digitalWrite(led, LOW);
 }
@@ -97,7 +100,7 @@ void send_commands() {
     labels(values[i]);
     send_command(values[i]);
     beep();
-    delay(5000);
+    delay(1000);
   }
   delay(1000);
   beep_beep(3);
@@ -145,6 +148,8 @@ void read_cards() {
 }
 
 void loop() {
+  digitalWrite(led, HIGH);
+
   read_cards();
   set_cards();
   if (!digitalRead(button)) {
