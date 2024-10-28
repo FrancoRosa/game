@@ -2,23 +2,20 @@
 #include <TimerOne.h>
 
 #define led 13
-#define led1 12
-#define ledR A7
-#define ledG A6
-#define ledB A5
-#define v_batt A4
-#define buzzer A3
-#define mat_clk A2
-#define mat_dat A1
-#define mat_in A0
 
-#define txPin 11
-#define rxPin 10
+#define buzzer A4
+#define led_lft A3
+#define led_fwd A2
+#define led_pwr A1
+#define led_rgt A0
 
-#define m1n1 2
-#define m1n2 3
-#define m1n3 4
-#define m1n4 5
+#define txPin 10
+#define rxPin 11
+
+#define m1n1 5
+#define m1n2 4
+#define m1n3 3
+#define m1n4 2
 
 #define m2n1 6
 #define m2n2 7
@@ -67,6 +64,14 @@ void off() {
   digitalWrite(m2n2, LOW);
   digitalWrite(m2n3, LOW);
   digitalWrite(m2n4, LOW);
+
+  digitalWrite(led_pwr, HIGH);
+}
+
+void off_led() {
+  digitalWrite(led_fwd, LOW);
+  digitalWrite(led_lft, LOW);
+  digitalWrite(led_rgt, LOW);
 }
 
 void process_command() {
@@ -86,29 +91,33 @@ void process_command() {
       move_c = 0;
       break;
     case 'b':
+
       if (state != st_bck)
         off();
       state = st_bck;
       dir_1 = 1;
       dir_2 = 1;
       move_c = 0;
-
       break;
     case 'l':
+
       if (state != st_left)
         off();
       state = st_left;
       dir_1 = 1;
       dir_2 = 0;
       turn_c = 0;
+
       break;
     case 'r':
+
       if (state != st_right)
         off();
       dir_1 = 0;
       dir_2 = 1;
       turn_c = 0;
       state = st_right;
+
       break;
     case 's':
       state = st_idle;
@@ -158,8 +167,10 @@ void blink() {
   switch (state) {
   case st_idle:
     off();
+    off_led();
     break;
   case st_fwd:
+    digitalWrite(led_fwd, HIGH);
     move_c++;
     if (move_c >= move) {
       state = st_idle;
@@ -175,6 +186,8 @@ void blink() {
     stepper();
     break;
   case st_left:
+    digitalWrite(led_lft, HIGH);
+
     turn_c++;
     if (turn_c >= turn) {
       state = st_idle;
@@ -182,6 +195,8 @@ void blink() {
     stepper();
     break;
   case st_right:
+    digitalWrite(led_rgt, HIGH);
+
     turn_c++;
     if (turn_c >= turn) {
       state = st_idle;
@@ -207,13 +222,19 @@ void setup() {
   pinMode(m2n3, OUTPUT);
   pinMode(m2n4, OUTPUT);
 
+  pinMode(led_lft, OUTPUT);
+  pinMode(led_fwd, OUTPUT);
+  pinMode(led_pwr, OUTPUT);
+  pinMode(led_rgt, OUTPUT);
+
   off();
   // Timer1.initialize(18000); // uS
   Timer1.initialize(1800); // uS
   Timer1.attachInterrupt(blink);
   btSerial.begin(9600);
   Serial.begin(115200);
-  Serial.println("...Start stepper");
+  beep_beep(3);
+  Serial.println("...Start car");
 }
 
 void loop() { process_command(); }
