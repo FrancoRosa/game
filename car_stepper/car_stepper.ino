@@ -22,7 +22,10 @@
 #define m2n3 8
 #define m2n4 9
 
-static int move = 2048 + 512;
+// Vuelta entera 2048 Pasos
+// Radio de llanta 6.9
+// Longitud cuadradito 12cm
+static int move = 1135;
 static int turn = 512 + 14;
 
 int dir_1 = 0;
