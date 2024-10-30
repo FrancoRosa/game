@@ -100,9 +100,9 @@ void send_commands() {
     labels(values[i]);
     send_command(values[i]);
     beep();
-    delay(1000);
+    delay(3000);
   }
-  delay(1000);
+  delay(500);
   beep_beep(3);
   Serial.println("...completed");
 }
