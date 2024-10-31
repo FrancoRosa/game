@@ -26,7 +26,7 @@
 // Radio de llanta 6.9
 // Longitud cuadradito 12cm
 static int move = 1135;
-static int turn = 512 + 14;
+static int turn = 512 + 8 * 14;
 
 int dir_1 = 0;
 int dir_2 = 0;
@@ -165,22 +165,24 @@ void stepper() {
 }
 
 void blink() {
-  digitalWrite(led, !digitalRead(led));
+  // digitalWrite(led, !digitalRead(led));
 
   switch (state) {
   case st_idle:
     off();
     off_led();
     break;
+
   case st_fwd:
     digitalWrite(led_fwd, HIGH);
+    digitalWrite(led_pwr, LOW);
     move_c++;
     if (move_c >= move) {
       state = st_idle;
     }
     stepper();
-
     break;
+
   case st_bck:
     move_c++;
     if (move_c >= move) {
@@ -188,8 +190,10 @@ void blink() {
     }
     stepper();
     break;
+
   case st_left:
     digitalWrite(led_lft, HIGH);
+    digitalWrite(led_pwr, LOW);
 
     turn_c++;
     if (turn_c >= turn) {
@@ -199,6 +203,7 @@ void blink() {
     break;
   case st_right:
     digitalWrite(led_rgt, HIGH);
+    digitalWrite(led_pwr, LOW);
 
     turn_c++;
     if (turn_c >= turn) {
@@ -231,7 +236,6 @@ void setup() {
   pinMode(led_rgt, OUTPUT);
 
   off();
-  // Timer1.initialize(18000); // uS
   Timer1.initialize(1800); // uS
   Timer1.attachInterrupt(blink);
   btSerial.begin(9600);
