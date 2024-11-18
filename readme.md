@@ -2,7 +2,7 @@
 
 > Programming game with real objects
 
-This repo contains the required software for a control board and a rover
+This repo contains the required software to a control a rover from a board by using a bluetooth bridge
 
 ## Dependencies
 
